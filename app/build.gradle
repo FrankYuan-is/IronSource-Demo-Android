@@ -3,7 +3,7 @@ apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     compileSdkVersion 31
-    buildToolsVersion '30.0.2'
+    buildToolsVersion '30.0.3'
     defaultConfig {
         applicationId "com.ironsource.ironsourcesdkdemo"
         minSdkVersion 19
@@ -69,7 +69,7 @@ dependencies {
     implementation 'com.ironsource:adqualitysdk:7.8.4'
 
 //
-//    implementation 'com.ironsource.sdk:mediationsdk:7.3.0'
+    implementation 'com.ironsource.sdk:mediationsdk:7.3.0'
 //    // Add AdColony Network
 //    implementation 'com.ironsource.adapters:adcolonyadapter:4.3.14'
 //    implementation 'com.adcolony:sdk:4.8.0'
@@ -123,6 +123,8 @@ dependencies {
 
     //混淆
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     //google pay
     def billing_version = "5.0.0"

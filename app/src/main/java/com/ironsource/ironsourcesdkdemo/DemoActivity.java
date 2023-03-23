@@ -42,8 +42,8 @@ import java.util.Map;
 public class DemoActivity extends Activity implements RewardedVideoManualListener, OfferwallListener, InterstitialListener, ImpressionDataListener {
 
     private final String TAG = "DemoActivity";
-//    private final String APP_KEY = "85460dcd";
-    private final String APP_KEY = "17a70d3c5";
+    private final String APP_KEY = "85460dcd";
+//    private final String APP_KEY = "17a70d3c5";
 //    private final String APP_KEY = "90a24db5";
     private final String AQ_USER_ID = "86421357";
     private Button mVideoButton;
@@ -110,6 +110,7 @@ public class DemoActivity extends Activity implements RewardedVideoManualListene
         initUIElements();
         startIronSourceInitTask();
         IronSource.getAdvertiserId(this);
+        createAndloadBanner();
 
     }
 
@@ -259,7 +260,9 @@ public class DemoActivity extends Activity implements RewardedVideoManualListene
                 // check if interstitial is available
                 if (IronSource.isInterstitialReady()) {
                     //show the interstitial
+                    destroyAndDetachBanner();
                     IronSource.showInterstitial();
+                    DemoActivity.this.finish();
                 }
             }
         });
