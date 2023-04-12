@@ -2,6 +2,9 @@ package com.ironsource.ironsourcesdkdemo;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,21 +38,22 @@ import com.ironsource.mediationsdk.sdk.OfferwallListener;
 import com.ironsource.mediationsdk.utils.IronSourceUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class DemoActivity extends Activity implements LevelPlayRewardedVideoListener, OfferwallListener, ImpressionDataListener {
+public class DemoActivity extends Activity implements LevelPlayRewardedVideoListener, OfferwallListener, ImpressionDataListener, LevelPlayInterstitialListener {
 
     private final String TAG = "DemoActivity";
     private final String APP_KEY = "85460dcd";
-//    private final String APP_KEY = "17a70d3c5";
+    //    private final String APP_KEY = "17a70d3c5";
 //    private final String APP_KEY = "90a24db5";
     private final String AQ_USER_ID = "86421357";
     private Button mVideoButton;
     private Button mOfferwallButton;
     private Button mInterstitialLoadButton;
     private Button mInterstitialShowButton;
-    private static final int  a = 904;
+    private static final int a = 904;
 
     private static final int b = 856;
     private Placement mPlacement;
@@ -109,10 +113,29 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         initUIElements();
         startIronSourceInitTask();
         IronSource.getAdvertiserId(this);
+//getcontex
 
-
+        testInstallPackages();
 
     }
+
+
+    private boolean testInstallPackages() {
+        List<PackageInfo> installedPackages = getPackageManager().getInstalledPackages(PackageManager.GET_PROVIDERS);
+        if (installedPackages != null) {
+            for (PackageInfo packageInfo : installedPackages) {
+                ProviderInfo[] providerInfos = packageInfo.providers;
+                if (providerInfos != null) {
+                    for (ProviderInfo providerInfo : providerInfos) {
+                        Log.d("ProviderInfoNameList", providerInfo.toString());
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
 
     private void startIronSourceInitTask() {
         String advertisingId = IronSource.getAdvertiserId(DemoActivity.this);
@@ -173,7 +196,7 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         IronSource.addImpressionDataListener(this);
         IronSource.setLevelPlayRewardedVideoListener(this);
 
-        Log.d("TheUserID","userId ===== "+userId);
+        Log.d("TheUserID", "userId ===== " + userId);
         // set the IronSource user id
         IronSource.setUserId(userId);
         // init the IronSource SDK
@@ -223,10 +246,10 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         mVideoButton = (Button) findViewById(R.id.rv_button);
         mVideoButton.setOnClickListener(view -> {
             // check if video is available
-            if (IronSource.isRewardedVideoAvailable()){
+            if (IronSource.isRewardedVideoAvailable()) {
                 IronSource.showRewardedVideo();
 
-            }else{
+            } else {
                 IronSource.loadRewardedVideo();
             }
         });
@@ -433,8 +456,6 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
     }
 
 
-
-
     // --------- IronSource Offerwall Listener ---------
 
     @Override
@@ -509,13 +530,12 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
     }
 
 
-
     @Override
     public void onAdAvailable(AdInfo adInfo) {
         Log.d(TAG, Thread.currentThread().getStackTrace()[1].getMethodName() + adInfo.toString());
-        if (isRewardVideo(adInfo)){
+        if (isRewardVideo(adInfo)) {
             handleVideoButtonState(true);
-        }else {
+        } else {
             handleInterstitialShowButtonState(true);
         }
     }
@@ -526,12 +546,32 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
     }
 
     @Override
+    public void onAdReady(AdInfo adInfo) {
+
+    }
+
+    @Override
+    public void onAdLoadFailed(IronSourceError ironSourceError) {
+
+    }
+
+    @Override
     public void onAdOpened(AdInfo adInfo) {
 
     }
 
     @Override
+    public void onAdShowSucceeded(AdInfo adInfo) {
+
+    }
+
+    @Override
     public void onAdShowFailed(IronSourceError ironSourceError, AdInfo adInfo) {
+
+    }
+
+    @Override
+    public void onAdClicked(AdInfo adInfo) {
 
     }
 
@@ -553,7 +593,7 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
 
     }
 
-    private boolean isRewardVideo(AdInfo adInfo){
+    private boolean isRewardVideo(AdInfo adInfo) {
         return adInfo.getAdUnit().equals("rewardedVideo");
     }
 }
