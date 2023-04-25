@@ -31,6 +31,7 @@ import com.ironsource.mediationsdk.model.Placement;
 import com.ironsource.mediationsdk.sdk.LevelPlayBannerListener;
 import com.ironsource.mediationsdk.sdk.LevelPlayInterstitialListener;
 import com.ironsource.mediationsdk.sdk.LevelPlayRewardedVideoListener;
+import com.ironsource.mediationsdk.sdk.LevelPlayRewardedVideoManualListener;
 import com.ironsource.mediationsdk.sdk.OfferwallListener;
 import com.ironsource.mediationsdk.utils.IronSourceUtils;
 
@@ -40,22 +41,25 @@ import java.util.Map;
 
 public class DemoActivity extends Activity implements LevelPlayRewardedVideoListener, OfferwallListener, ImpressionDataListener {
 
-    private final String TAG = "DemoActivity";
-    private final String APP_KEY = "85460dcd";
-//    private final String APP_KEY = "17a70d3c5";
-//    private final String APP_KEY = "90a24db5";
+    private final String TAG = "DemoActivity_callback";
+//    private final String APP_KEY = "85460dcd";
+    private final String APP_KEY = "8190c9cd";
+//    private final String APP_KEY = "658a031d";
+//    private final String APP_KEY = "d13a7e25";
     private final String AQ_USER_ID = "86421357";
     private Button mVideoButton;
     private Button mOfferwallButton;
     private Button mInterstitialLoadButton;
-    private Button mInterstitialShowButton;
-    private static final int  a = 904;
 
-    private static final int b = 856;
+    private  Activity a;
+    private Button mInterstitialShowButton;
+
     private Placement mPlacement;
 
     private FrameLayout mBannerParentLayout;
+//    private FrameLayout mBannerHeaderLayout;
     private IronSourceBannerLayout mIronSourceBannerLayout;
+    private IronSourceBannerLayout mIronSourceHeaderBannerLayout;
     private Button isTestSuite;
 
     @Override
@@ -63,23 +67,8 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_demo);
 
-
-        Map<String, String> rvParams = new HashMap<>();
-        rvParams.put("ip", "123.4.56.78");
-        IronSource.setRewardedVideoServerParameters(rvParams);
-
         //The integrationHelper is used to validate the integration. Remove the integrationHelper before going live!
         IntegrationHelper.validateIntegration(this);
-
-
-//        PendingIntent pendingIntent;
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            pendingIntent = PendingIntent.getActivity(this, 0, getIntent(), PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
-//        }else{
-//            pendingIntent = PendingIntent.getActivity(this,
-//                    0, getIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
-//
-//        }
 
         ISAdQualityConfig.Builder builder = new ISAdQualityConfig.Builder().setAdQualityInitListener(new ISAdQualityInitListener() {
 
@@ -98,11 +87,12 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
 //        builder.setUserId(AQ_USER_ID);
         ISAdQualityConfig adQualityConfig = builder.build();
 
-        IronSourceAdQuality.getInstance().initialize(this, APP_KEY, adQualityConfig);
+//        IronSourceAdQuality.getInstance().initialize(this, APP_KEY, adQualityConfig);
 
 
-        IronSource.setAdaptersDebug(true);
+//        IronSource.setAdaptersDebug(true);
 
+//        IronSource.setUserId("ironSource_test_17_20");
 
         //Network Connectivity Status
         IronSource.shouldTrackNetworkState(this, true);
@@ -125,59 +115,63 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         // Be sure to set a listener to each product that is being initiated
         // set the IronSource rewarded video listener
         // set the IronSource offerwall listener
-        IronSource.setOfferwallListener(this);
+//        IronSource.setOfferwallListener(this);
         // set client side callbacks for the offerwall
-        SupersonicConfig.getConfigObj().setClientSideCallbacks(true);
+//        SupersonicConfig.getConfigObj().setClientSideCallbacks(true);
         // set the interstitial listener
 //        IronSource.setInterstitialListener(this);
-        IronSource.setLevelPlayInterstitialListener(new LevelPlayInterstitialListener() {
+
+        // add the Impression Data listener
+        IronSource.addImpressionDataListener(this);
+//        IronSource.setLevelPlayRewardedVideoListener(this);
+
+        IronSource.setLevelPlayRewardedVideoManualListener(new LevelPlayRewardedVideoManualListener() {
             @Override
             public void onAdReady(AdInfo adInfo) {
-                handleInterstitialShowButtonState(true);
+                Log.d(TAG, Thread.currentThread().getStackTrace()[1].getMethodName()+ " " + adInfo.toString());
+
             }
 
             @Override
             public void onAdLoadFailed(IronSourceError ironSourceError) {
-                handleInterstitialShowButtonState(false);
+
             }
 
             @Override
             public void onAdOpened(AdInfo adInfo) {
-                // called when the video has started
-                Log.d(TAG, "onAdOpened ----- " + adInfo.toString());
-            }
+                Log.d(TAG, Thread.currentThread().getStackTrace()[1].getMethodName()+ " " + adInfo.toString());
 
-            @Override
-            public void onAdShowSucceeded(AdInfo adInfo) {
-                // called when the video has started
-                Log.d(TAG, "onAdShowSucceeded ----- " + adInfo.toString());
             }
 
             @Override
             public void onAdShowFailed(IronSourceError ironSourceError, AdInfo adInfo) {
+                Log.d(TAG, Thread.currentThread().getStackTrace()[1].getMethodName()+ " " + adInfo.toString());
 
             }
 
             @Override
-            public void onAdClicked(AdInfo adInfo) {
+            public void onAdClicked(Placement placement, AdInfo adInfo) {
+                Log.d(TAG, Thread.currentThread().getStackTrace()[1].getMethodName()+ " " + adInfo.toString());
+
+            }
+
+            @Override
+            public void onAdRewarded(Placement placement, AdInfo adInfo) {
+                Log.d(TAG, Thread.currentThread().getStackTrace()[1].getMethodName()+ " " + adInfo.toString());
 
             }
 
             @Override
             public void onAdClosed(AdInfo adInfo) {
+                Log.d(TAG, Thread.currentThread().getStackTrace()[1].getMethodName()+ " " + adInfo.toString());
 
             }
         });
-
-        // add the Impression Data listener
-        IronSource.addImpressionDataListener(this);
-        IronSource.setLevelPlayRewardedVideoListener(this);
-
         Log.d("TheUserID","userId ===== "+userId);
         // set the IronSource user id
-        IronSource.setUserId(userId);
+        IronSource.setUserId("ironSource_test");
         // init the IronSource SDK
-        IronSource.init(this, appKey);
+        IronSource.init(this, appKey, IronSource.AD_UNIT.REWARDED_VIDEO);
 //        IronSource.setManualLoadRewardedVideo(this);
 //
 //        IronSource.loadRewardedVideo();
@@ -186,7 +180,7 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
 
 
         // In order to work with IronSourceBanners you need to add Providers who support banner ad unit and uncomment next line
-//         createAndloadBanner();
+         createAndloadBanner();
     }
 
 
@@ -255,7 +249,6 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         versionTV.setText(String.format("%s %s", getResources().getString(R.string.version), IronSourceUtils.getSDKVersion()));
 
         mBannerParentLayout = (FrameLayout) findViewById(R.id.banner_footer);
-
         isTestSuite = findViewById(R.id.is_test_suite);
         isTestSuite.setOnClickListener(v -> IronSource.launchTestSuite(DemoActivity.this));
     }
@@ -270,11 +263,16 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
 
         // instantiate IronSourceBanner object, using the IronSource.createBanner API
         mIronSourceBannerLayout = IronSource.createBanner(this, size);
+        mIronSourceHeaderBannerLayout = IronSource.createBanner(this, ISBannerSize.LARGE);
 
         // add IronSourceBanner to your container
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT);
         mBannerParentLayout.addView(mIronSourceBannerLayout, 0, layoutParams);
+
+//        FrameLayout.LayoutParams layoutParams2 = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+//                FrameLayout.LayoutParams.MATCH_PARENT);
+//        mBannerHeaderLayout.addView(mIronSourceHeaderBannerLayout, 0, layoutParams2);
 
         if (mIronSourceBannerLayout != null) {
             // set the banner listener
@@ -318,9 +316,11 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
 
             // load ad into the created banner
             IronSource.loadBanner(mIronSourceBannerLayout);
+//            IronSource.loadBanner(mIronSourceHeaderBannerLayout);
         } else {
             Toast.makeText(DemoActivity.this, "IronSource.createBanner returned null", Toast.LENGTH_LONG).show();
         }
+
     }
 
 
@@ -332,6 +332,8 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         if (mBannerParentLayout != null) {
             mBannerParentLayout.removeView(mIronSourceBannerLayout);
         }
+
+        IronSource.destroyBanner(mIronSourceHeaderBannerLayout);
     }
 
     /**
@@ -512,7 +514,9 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
 
     @Override
     public void onAdAvailable(AdInfo adInfo) {
+        Log.d(TAG, "available = " + IronSource.isRewardedVideoAvailable());
         Log.d(TAG, Thread.currentThread().getStackTrace()[1].getMethodName() + adInfo.toString());
+
         if (isRewardVideo(adInfo)){
             handleVideoButtonState(true);
         }else {
@@ -554,6 +558,6 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
     }
 
     private boolean isRewardVideo(AdInfo adInfo){
-        return adInfo.getAdUnit().equals("rewardedVideo");
+        return adInfo.getAdUnit().equals("rewarded_video");
     }
 }
