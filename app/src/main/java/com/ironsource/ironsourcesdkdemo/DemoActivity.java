@@ -11,8 +11,17 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
+import com.amazon.aps.shared.util.APSSharedUtil;
+import com.amazon.device.ads.AdError;
+import com.amazon.device.ads.AdRegistration;
+import com.amazon.device.ads.DTBAdCallback;
+import com.amazon.device.ads.DTBAdRequest;
+import com.amazon.device.ads.DTBAdResponse;
+import com.amazon.device.ads.DTBAdSize;
+import com.amazon.device.ads.SDKUtilities;
 import com.ironsource.adapters.supersonicads.SupersonicConfig;
 import com.ironsource.adqualitysdk.sdk.ISAdQualityConfig;
 import com.ironsource.adqualitysdk.sdk.ISAdQualityInitError;
@@ -34,6 +43,9 @@ import com.ironsource.mediationsdk.sdk.LevelPlayRewardedVideoListener;
 import com.ironsource.mediationsdk.sdk.OfferwallListener;
 import com.ironsource.mediationsdk.utils.IronSourceUtils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -41,10 +53,20 @@ import java.util.Map;
 public class DemoActivity extends Activity implements LevelPlayRewardedVideoListener, OfferwallListener, ImpressionDataListener {
 
     private final String TAG = "DemoActivity";
-    private final String APP_KEY = "85460dcd";
+
+//    appkey: 1634b1bc5
+//    APS_APP_ID: 51ab87e6-70f0-41c0-8100-3bafd9b72cdd
+//    APS_Static_interstitial_id: 15098411-6b09-4f2f-b6d0-e37cfc99910f
+//    APS_Banner_ID: 25e0b6b7-5d04-425e-9ff5-33f1d253de26
+    private final String APP_KEY = "1634b1bc5";
 //    private final String APP_KEY = "17a70d3c5";
 //    private final String APP_KEY = "90a24db5";
     private final String AQ_USER_ID = "86421357";
+
+    private final String APS_APP_ID = "51ab87e6-70f0-41c0-8100-3bafd9b72cdd";
+    private final String APS_Static_interstitial_id = "15098411-6b09-4f2f-b6d0-e37cfc99910f";
+    private final String APS_Banner_ID = "25e0b6b7-5d04-425e-9ff5-33f1d253de26";
+
     private Button mVideoButton;
     private Button mOfferwallButton;
     private Button mInterstitialLoadButton;
@@ -63,44 +85,8 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_demo);
 
-
-        Map<String, String> rvParams = new HashMap<>();
-        rvParams.put("ip", "123.4.56.78");
-        IronSource.setRewardedVideoServerParameters(rvParams);
-
         //The integrationHelper is used to validate the integration. Remove the integrationHelper before going live!
         IntegrationHelper.validateIntegration(this);
-
-
-//        PendingIntent pendingIntent;
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            pendingIntent = PendingIntent.getActivity(this, 0, getIntent(), PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
-//        }else{
-//            pendingIntent = PendingIntent.getActivity(this,
-//                    0, getIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
-//
-//        }
-
-        ISAdQualityConfig.Builder builder = new ISAdQualityConfig.Builder().setAdQualityInitListener(new ISAdQualityInitListener() {
-
-            @Override
-            public void adQualitySdkInitSuccess() {
-                Log.d("AdQualityInitListener", "adQualitySdkInitSuccess");
-            }
-
-            @Override
-            public void adQualitySdkInitFailed(ISAdQualityInitError error, String message) {
-                Log.d("AdQualityInitListener", "adQualitySdkInitFailed " + error + " message: " + message);
-            }
-        });
-        builder.setTestMode(true);
-        builder.setLogLevel(ISAdQualityLogLevel.VERBOSE);
-//        builder.setUserId(AQ_USER_ID);
-        ISAdQualityConfig adQualityConfig = builder.build();
-
-        IronSourceAdQuality.getInstance().initialize(this, APP_KEY, adQualityConfig);
-
-
         IronSource.setAdaptersDebug(true);
 
 
@@ -109,6 +95,13 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         initUIElements();
         startIronSourceInitTask();
         IronSource.getAdvertiserId(this);
+
+        //APS
+        AdRegistration.getInstance(APS_APP_ID, this);
+        // Set APS debug and test mode
+        AdRegistration.enableLogging(true);
+        AdRegistration.enableTesting(true);
+        Log.d(TAG, "APSInterstitialAd初始化: ");
 
 
 
@@ -239,7 +232,37 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         });
 
         mInterstitialLoadButton = (Button) findViewById(R.id.is_button_1);
-        mInterstitialLoadButton.setOnClickListener(view -> IronSource.loadInterstitial());
+        mInterstitialLoadButton.setOnClickListener(view -> {
+
+            final DTBAdRequest loader = new DTBAdRequest();
+            loader.setSizes(new DTBAdSize.DTBInterstitialAdSize(APS_Static_interstitial_id));
+            loader.loadAd(new DTBAdCallback() {
+                @Override
+                public void onFailure(@NonNull AdError adError) {
+
+                }
+
+                @Override
+                public void onSuccess(DTBAdResponse dtbAdResponse) {
+                    // Append the APS bid parameters to ironSource mediation to add APS to the next ad request
+                    JSONObject apsDataJsonIS = new JSONObject();
+                    try {
+                        apsDataJsonIS.put("bidInfo", SDKUtilities.getBidInfo(dtbAdResponse));
+                        apsDataJsonIS.put("pricePointEncoded", SDKUtilities.getPricePoint(dtbAdResponse));
+                        apsDataJsonIS.put("uuid", APS_Static_interstitial_id);
+
+                        // Define APS data per interstitial ad unit
+                        JSONObject apsDataJson = new JSONObject();
+                        apsDataJson.put(IronSource.AD_UNIT.INTERSTITIAL.toString(), apsDataJsonIS);
+                        IronSource.setNetworkData("APS", apsDataJson);
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }
+            });
+            IronSource.loadInterstitial();
+        });
 
 
         mInterstitialShowButton = (Button) findViewById(R.id.is_button_2);
@@ -247,6 +270,7 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
             // check if interstitial is available
             if (IronSource.isInterstitialReady()) {
                 //show the interstitial
+
                 IronSource.showInterstitial();
             }
         });
@@ -315,6 +339,36 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
                     Log.d(TAG, "onBannerAdScreenDismissed");
                 }
             });
+            final DTBAdRequest loader = new DTBAdRequest();
+            loader.setSizes(new DTBAdSize(ISBannerSize.BANNER.getWidth(), ISBannerSize.BANNER.getHeight(), APS_Banner_ID));
+            loader.loadAd(new DTBAdCallback() {
+                @Override
+                public void onFailure(@NonNull AdError adError) {
+
+                }
+
+                @Override
+                public void onSuccess(DTBAdResponse dtbAdResponse) {
+                    // Append the APS bid parameters to ironSource mediation to add APS to the next ad request
+                    JSONObject apsDataJsonBN = new JSONObject();
+                    try {
+                        apsDataJsonBN.put("bidInfo", SDKUtilities.getBidInfo(dtbAdResponse));
+                        apsDataJsonBN.put("pricePointEncoded", SDKUtilities.getPricePoint(dtbAdResponse));
+                        apsDataJsonBN.put("uuid", APS_Banner_ID);
+                        apsDataJsonBN.put("width", dtbAdResponse.getDTBAds().get(0).getWidth());
+                        apsDataJsonBN.put("height", dtbAdResponse.getDTBAds().get(0).getHeight());
+
+                        // Define APS data per interstitial ad unit
+                        JSONObject apsDataJson = new JSONObject();
+                        apsDataJson.put(IronSource.AD_UNIT.BANNER.toString(), apsDataJsonBN);
+                        IronSource.setNetworkData("APS", apsDataJson);
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+
+            });
+
 
             // load ad into the created banner
             IronSource.loadBanner(mIronSourceBannerLayout);
@@ -516,7 +570,7 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         if (isRewardVideo(adInfo)){
             handleVideoButtonState(true);
         }else {
-            handleInterstitialShowButtonState(true);
+//            handleInterstitialShowButtonState(true);
         }
     }
 
