@@ -6,7 +6,7 @@ android {
     buildToolsVersion '33.0.2'
     defaultConfig {
         applicationId "com.ironsource.ironsourcesdkdemo"
-        minSdkVersion 19
+        minSdkVersion 23
         targetSdkVersion 33
         versionCode 1
         versionName "1.0"
@@ -18,7 +18,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
+    namespace 'com.ironsource.ironsourcesdkdemo'
     lintOptions {
         abortOnError false
     }
@@ -56,7 +56,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     //Add IronSource Mediation SDK dependency.
-    implementation 'com.ironsource:adqualitysdk:7.8.4'
+    implementation 'com.ironsource:adqualitysdk:7.9.0'
 
 //
     implementation 'com.ironsource.sdk:mediationsdk:7.3.0'

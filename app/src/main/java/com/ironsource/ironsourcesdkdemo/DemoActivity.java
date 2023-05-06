@@ -41,7 +41,7 @@ import java.util.Map;
 public class DemoActivity extends Activity implements LevelPlayRewardedVideoListener, OfferwallListener, ImpressionDataListener {
 
     private final String TAG = "DemoActivity";
-    private final String APP_KEY = "85460dcd";
+    private final String APP_KEY = "18dd1c61d";
 //    private final String APP_KEY = "17a70d3c5";
 //    private final String APP_KEY = "90a24db5";
     private final String AQ_USER_ID = "86421357";
@@ -62,11 +62,6 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_demo);
-
-
-        Map<String, String> rvParams = new HashMap<>();
-        rvParams.put("ip", "123.4.56.78");
-        IronSource.setRewardedVideoServerParameters(rvParams);
 
         //The integrationHelper is used to validate the integration. Remove the integrationHelper before going live!
         IntegrationHelper.validateIntegration(this);
@@ -98,7 +93,7 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
 //        builder.setUserId(AQ_USER_ID);
         ISAdQualityConfig adQualityConfig = builder.build();
 
-        IronSourceAdQuality.getInstance().initialize(this, APP_KEY, adQualityConfig);
+//        IronSourceAdQuality.getInstance().initialize(this, APP_KEY, adQualityConfig);
 
 
         IronSource.setAdaptersDebug(true);
