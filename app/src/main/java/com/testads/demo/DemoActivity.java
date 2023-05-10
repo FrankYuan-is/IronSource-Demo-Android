@@ -1,4 +1,4 @@
-package com.ironsource.ironsourcesdkdemo;
+package com.testads.demo;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -18,10 +18,10 @@ import com.ironsource.adqualitysdk.sdk.ISAdQualityConfig;
 import com.ironsource.adqualitysdk.sdk.ISAdQualityInitError;
 import com.ironsource.adqualitysdk.sdk.ISAdQualityInitListener;
 import com.ironsource.adqualitysdk.sdk.ISAdQualityLogLevel;
-import com.ironsource.adqualitysdk.sdk.IronSourceAdQuality;
 import com.ironsource.mediationsdk.ISBannerSize;
 import com.ironsource.mediationsdk.IronSource;
 import com.ironsource.mediationsdk.IronSourceBannerLayout;
+import com.ironsource.mediationsdk.IronSourceSegment;
 import com.ironsource.mediationsdk.adunit.adapter.utility.AdInfo;
 import com.ironsource.mediationsdk.impressionData.ImpressionData;
 import com.ironsource.mediationsdk.impressionData.ImpressionDataListener;
@@ -32,16 +32,15 @@ import com.ironsource.mediationsdk.sdk.LevelPlayBannerListener;
 import com.ironsource.mediationsdk.sdk.LevelPlayInterstitialListener;
 import com.ironsource.mediationsdk.sdk.LevelPlayRewardedVideoListener;
 import com.ironsource.mediationsdk.sdk.OfferwallListener;
+import com.ironsource.mediationsdk.sdk.SegmentListener;
 import com.ironsource.mediationsdk.utils.IronSourceUtils;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 public class DemoActivity extends Activity implements LevelPlayRewardedVideoListener, OfferwallListener, ImpressionDataListener {
 
     private final String TAG = "DemoActivity";
-    private final String APP_KEY = "18dd1c61d";
+    private final String APP_KEY = "19a6d2465";
 //    private final String APP_KEY = "17a70d3c5";
 //    private final String APP_KEY = "90a24db5";
     private final String AQ_USER_ID = "86421357";
@@ -49,14 +48,14 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
     private Button mOfferwallButton;
     private Button mInterstitialLoadButton;
     private Button mInterstitialShowButton;
-    private static final int  a = 904;
+    private static final int a = 904;
 
     private static final int b = 856;
     private Placement mPlacement;
 
     private FrameLayout mBannerParentLayout;
     private IronSourceBannerLayout mIronSourceBannerLayout;
-    private Button isTestSuite;
+    private IronSourceSegment mIronSegment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,16 +64,6 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
 
         //The integrationHelper is used to validate the integration. Remove the integrationHelper before going live!
         IntegrationHelper.validateIntegration(this);
-
-
-//        PendingIntent pendingIntent;
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            pendingIntent = PendingIntent.getActivity(this, 0, getIntent(), PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
-//        }else{
-//            pendingIntent = PendingIntent.getActivity(this,
-//                    0, getIntent(), PendingIntent.FLAG_UPDATE_CURRENT);
-//
-//        }
 
         ISAdQualityConfig.Builder builder = new ISAdQualityConfig.Builder().setAdQualityInitListener(new ISAdQualityInitListener() {
 
@@ -104,7 +93,6 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         initUIElements();
         startIronSourceInitTask();
         IronSource.getAdvertiserId(this);
-
 
 
     }
@@ -161,27 +149,31 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
             @Override
             public void onAdClosed(AdInfo adInfo) {
 
+
             }
         });
+        mIronSegment = new IronSourceSegment();
+//
+//        mIronSegment.setSegmentName("LowRamUsr2");
+//                   mIronSegment.setCustom("LowRamUsr", String.valueOf(count));
+//        IronSource.setSegment(mIronSegment);
 
+        IronSource.setSegmentListener(new SegmentListener() {
+            @Override
+            public void onSegmentReceived(String s) {
+                Log.d("onSegmentReceived", "onSegmentReceived is " + s);
+            }
+        });
         // add the Impression Data listener
         IronSource.addImpressionDataListener(this);
         IronSource.setLevelPlayRewardedVideoListener(this);
 
-        Log.d("TheUserID","userId ===== "+userId);
+        Log.d("TheUserID", "userId ===== " + userId);
         // set the IronSource user id
         IronSource.setUserId(userId);
         // init the IronSource SDK
         IronSource.init(this, appKey);
-//        IronSource.setManualLoadRewardedVideo(this);
-//
-//        IronSource.loadRewardedVideo();
 
-//        updateButtonsState();
-
-
-        // In order to work with IronSourceBanners you need to add Providers who support banner ad unit and uncomment next line
-//         createAndloadBanner();
     }
 
 
@@ -211,6 +203,9 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         handleInterstitialShowButtonState(false);
     }
 
+    boolean count = true;
+    String segmentname = "LowRamUsr2";
+
     /**
      * initialize the UI elements of the activity
      */
@@ -218,10 +213,10 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         mVideoButton = (Button) findViewById(R.id.rv_button);
         mVideoButton.setOnClickListener(view -> {
             // check if video is available
-            if (IronSource.isRewardedVideoAvailable()){
+            if (IronSource.isRewardedVideoAvailable()) {
                 IronSource.showRewardedVideo();
 
-            }else{
+            } else {
                 IronSource.loadRewardedVideo();
             }
         });
@@ -234,7 +229,17 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         });
 
         mInterstitialLoadButton = (Button) findViewById(R.id.is_button_1);
-        mInterstitialLoadButton.setOnClickListener(view -> IronSource.loadInterstitial());
+
+
+        mInterstitialLoadButton.setOnClickListener(view ->
+                {
+
+                    mIronSegment.setSegmentName(segmentname);
+                    IronSource.setSegment(mIronSegment);
+
+                    IronSource.loadInterstitial();
+                }
+             );
 
 
         mInterstitialShowButton = (Button) findViewById(R.id.is_button_2);
@@ -251,8 +256,7 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
 
         mBannerParentLayout = (FrameLayout) findViewById(R.id.banner_footer);
 
-        isTestSuite = findViewById(R.id.is_test_suite);
-        isTestSuite.setOnClickListener(v -> IronSource.launchTestSuite(DemoActivity.this));
+//        findViewById(R.id.is_test_suite).setOnClickListener(v -> IronSource.launchTestSuite(DemoActivity.this));
     }
 
 
@@ -428,8 +432,6 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
     }
 
 
-
-
     // --------- IronSource Offerwall Listener ---------
 
     @Override
@@ -504,15 +506,11 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
     }
 
 
-
     @Override
     public void onAdAvailable(AdInfo adInfo) {
         Log.d(TAG, Thread.currentThread().getStackTrace()[1].getMethodName() + adInfo.toString());
-        if (isRewardVideo(adInfo)){
-            handleVideoButtonState(true);
-        }else {
-            handleInterstitialShowButtonState(true);
-        }
+        handleVideoButtonState(true);
+
     }
 
     @Override
@@ -548,7 +546,7 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
 
     }
 
-    private boolean isRewardVideo(AdInfo adInfo){
+    private boolean isRewardVideo(AdInfo adInfo) {
         return adInfo.getAdUnit().equals("rewardedVideo");
     }
 }

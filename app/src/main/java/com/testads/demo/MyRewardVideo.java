@@ -1,4 +1,4 @@
-package com.ironsource.ironsourcesdkdemo;
+package com.testads.demo;
 
 import android.app.Activity;
 
