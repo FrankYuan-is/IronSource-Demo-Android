@@ -13,6 +13,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.ironsource.adapters.supersonicads.SupersonicConfig;
 import com.ironsource.adqualitysdk.sdk.ISAdQualityConfig;
 import com.ironsource.adqualitysdk.sdk.ISAdQualityInitError;
@@ -35,12 +38,14 @@ import com.ironsource.mediationsdk.sdk.OfferwallListener;
 import com.ironsource.mediationsdk.sdk.SegmentListener;
 import com.ironsource.mediationsdk.utils.IronSourceUtils;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
-public class DemoActivity extends Activity implements LevelPlayRewardedVideoListener, OfferwallListener, ImpressionDataListener {
+public class DemoActivity extends Activity implements LevelPlayRewardedVideoListener, LevelPlayInterstitialListener, OfferwallListener, ImpressionDataListener {
 
     private final String TAG = "DemoActivity";
-    private final String APP_KEY = "19a6d2465";
+    private final String APP_KEY = "19baa3cfd";
 //    private final String APP_KEY = "17a70d3c5";
 //    private final String APP_KEY = "90a24db5";
     private final String AQ_USER_ID = "86421357";
@@ -62,9 +67,15 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_demo);
 
+        List<String> testDeviceIds = Arrays.asList("8235783CFDE1C6B5955002ADF235B52D");
+        RequestConfiguration configuration =
+                new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
+        MobileAds.setRequestConfiguration(configuration);
+
+        Log.d(TAG, "是否为测试设备"+String.valueOf(new AdRequest.Builder().build().isTestDevice(this)));
         //The integrationHelper is used to validate the integration. Remove the integrationHelper before going live!
         IntegrationHelper.validateIntegration(this);
-
+        IronSource.setMetaData("is_test_suite", "enable");
         ISAdQualityConfig.Builder builder = new ISAdQualityConfig.Builder().setAdQualityInitListener(new ISAdQualityInitListener() {
 
             @Override
