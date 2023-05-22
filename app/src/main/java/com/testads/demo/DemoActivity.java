@@ -90,11 +90,7 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         });
         builder.setTestMode(true);
         builder.setLogLevel(ISAdQualityLogLevel.VERBOSE);
-//        builder.setUserId(AQ_USER_ID);
         ISAdQualityConfig adQualityConfig = builder.build();
-
-//        IronSourceAdQuality.getInstance().initialize(this, APP_KEY, adQualityConfig);
-
 
         IronSource.setAdaptersDebug(true);
 
@@ -104,8 +100,6 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         initUIElements();
         startIronSourceInitTask();
         IronSource.getAdvertiserId(this);
-
-
     }
 
     private void startIronSourceInitTask() {
@@ -124,51 +118,7 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         SupersonicConfig.getConfigObj().setClientSideCallbacks(true);
         // set the interstitial listener
 //        IronSource.setInterstitialListener(this);
-        IronSource.setLevelPlayInterstitialListener(new LevelPlayInterstitialListener() {
-            @Override
-            public void onAdReady(AdInfo adInfo) {
-                handleInterstitialShowButtonState(true);
-            }
-
-            @Override
-            public void onAdLoadFailed(IronSourceError ironSourceError) {
-                handleInterstitialShowButtonState(false);
-            }
-
-            @Override
-            public void onAdOpened(AdInfo adInfo) {
-                // called when the video has started
-                Log.d(TAG, "onAdOpened ----- " + adInfo.toString());
-            }
-
-            @Override
-            public void onAdShowSucceeded(AdInfo adInfo) {
-                // called when the video has started
-                Log.d(TAG, "onAdShowSucceeded ----- " + adInfo.toString());
-            }
-
-            @Override
-            public void onAdShowFailed(IronSourceError ironSourceError, AdInfo adInfo) {
-
-            }
-
-            @Override
-            public void onAdClicked(AdInfo adInfo) {
-
-            }
-
-            @Override
-            public void onAdClosed(AdInfo adInfo) {
-
-
-            }
-        });
-        mIronSegment = new IronSourceSegment();
-//
-//        mIronSegment.setSegmentName("LowRamUsr2");
-//                   mIronSegment.setCustom("LowRamUsr", String.valueOf(count));
-//        IronSource.setSegment(mIronSegment);
-
+        IronSource.setLevelPlayInterstitialListener(this);
         IronSource.setSegmentListener(new SegmentListener() {
             @Override
             public void onSegmentReceived(String s) {
@@ -245,10 +195,11 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         mInterstitialLoadButton.setOnClickListener(view ->
                 {
 
-                    mIronSegment.setSegmentName(segmentname);
-                    IronSource.setSegment(mIronSegment);
+//                    mIronSegment.setSegmentName(segmentname);
+//                    IronSource.setSegment(mIronSegment);
 
                     IronSource.loadInterstitial();
+//                    IronSource.loadRewardedVideo();
                 }
              );
 
@@ -267,7 +218,7 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
 
         mBannerParentLayout = (FrameLayout) findViewById(R.id.banner_footer);
 
-//        findViewById(R.id.is_test_suite).setOnClickListener(v -> IronSource.launchTestSuite(DemoActivity.this));
+        findViewById(R.id.is_test_suite).setOnClickListener(v -> IronSource.launchTestSuite(DemoActivity.this));
     }
 
 
@@ -529,9 +480,39 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
         handleVideoButtonState(false);
     }
 
+
+    //region interstitial listener
+    @Override
+    public void onAdReady(AdInfo adInfo) {
+        handleInterstitialShowButtonState(true);
+
+    }
+
+    @Override
+    public void onAdLoadFailed(IronSourceError ironSourceError) {
+        handleInterstitialShowButtonState(false);
+    }
+
+
+
+
+    @Override
+    public void onAdShowSucceeded(AdInfo adInfo) {
+        Log.d(TAG, "onAdShowSucceeded ----- " + adInfo.toString());
+
+    }
+
+    @Override
+    public void onAdClicked(AdInfo adInfo) {
+        Log.d(TAG, "onAdClicked ----- " + adInfo.toString());
+
+    }
+    //endregion
+
+
     @Override
     public void onAdOpened(AdInfo adInfo) {
-
+        Log.d(TAG, "onAdOpened ----- " + adInfo.toString());
     }
 
     @Override
