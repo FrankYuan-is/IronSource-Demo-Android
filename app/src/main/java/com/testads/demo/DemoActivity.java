@@ -66,11 +66,12 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_demo);
-
-        List<String> testDeviceIds = Arrays.asList("8235783CFDE1C6B5955002ADF235B52D");
-        RequestConfiguration configuration =
-                new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
-        MobileAds.setRequestConfiguration(configuration);
+        IronSource.setAdaptersDebug(true);
+        IronSource.setMetaData("is_test_suite", "enable");
+//        List<String> testDeviceIds = Arrays.asList("8235783CFDE1C6B5955002ADF235B52D");
+//        RequestConfiguration configuration =
+//                new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
+//        MobileAds.setRequestConfiguration(configuration);
 
         Log.d(TAG, "是否为测试设备"+String.valueOf(new AdRequest.Builder().build().isTestDevice(this)));
         //The integrationHelper is used to validate the integration. Remove the integrationHelper before going live!
@@ -200,6 +201,7 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
 
                     IronSource.loadInterstitial();
 //                    IronSource.loadRewardedVideo();
+                    IronSource.launchTestSuite(DemoActivity.this);
                 }
              );
 
