@@ -17,10 +17,6 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.RequestConfiguration;
 import com.ironsource.adapters.supersonicads.SupersonicConfig;
-import com.ironsource.adqualitysdk.sdk.ISAdQualityConfig;
-import com.ironsource.adqualitysdk.sdk.ISAdQualityInitError;
-import com.ironsource.adqualitysdk.sdk.ISAdQualityInitListener;
-import com.ironsource.adqualitysdk.sdk.ISAdQualityLogLevel;
 import com.ironsource.mediationsdk.ISBannerSize;
 import com.ironsource.mediationsdk.IronSource;
 import com.ironsource.mediationsdk.IronSourceBannerLayout;
@@ -31,7 +27,6 @@ import com.ironsource.mediationsdk.impressionData.ImpressionDataListener;
 import com.ironsource.mediationsdk.integration.IntegrationHelper;
 import com.ironsource.mediationsdk.logger.IronSourceError;
 import com.ironsource.mediationsdk.model.Placement;
-import com.ironsource.mediationsdk.sdk.InitializationListener;
 import com.ironsource.mediationsdk.sdk.LevelPlayBannerListener;
 import com.ironsource.mediationsdk.sdk.LevelPlayInterstitialListener;
 import com.ironsource.mediationsdk.sdk.LevelPlayRewardedVideoListener;
@@ -46,7 +41,7 @@ import java.util.Locale;
 public class DemoActivity extends Activity implements LevelPlayRewardedVideoListener, LevelPlayInterstitialListener, OfferwallListener, ImpressionDataListener {
 
     private final String TAG = "DemoActivity";
-    private final String APP_KEY = "1aa239c3d";
+    private final String APP_KEY = "1abb36855";
     //    private final String APP_KEY = "8545d445";
 //    private final String APP_KEY = "8190c9cd";
 //    private final String APP_KEY = "17a70d3c5";
@@ -72,29 +67,15 @@ public class DemoActivity extends Activity implements LevelPlayRewardedVideoList
 
         IronSource.setAdaptersDebug(true);
         IronSource.setMetaData("is_test_suite", "enable");
-//        List<String> testDeviceIds = Arrays.asList("96ED878687F44B83B56A664E6A0DA444");
-//        RequestConfiguration configuration =
-//                new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
-//        MobileAds.setRequestConfiguration(configuration);
+        List<String> testDeviceIds = Arrays.asList("0C2C91E71DEEFCAC36CE04FCF11A1D36");
+        RequestConfiguration configuration =
+                new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
+        MobileAds.setRequestConfiguration(configuration);
 
         Log.d(TAG, "是否为测试设备" + String.valueOf(new AdRequest.Builder().build().isTestDevice(this)));
         //The integrationHelper is used to validate the integration. Remove the integrationHelper before going live!
         IntegrationHelper.validateIntegration(this);
         IronSource.shouldTrackNetworkState(this, true);
-        ISAdQualityConfig.Builder builder = new ISAdQualityConfig.Builder().setAdQualityInitListener(new ISAdQualityInitListener() {
-
-            @Override
-            public void adQualitySdkInitSuccess() {
-                Log.d("AdQualityInitListener", "adQualitySdkInitSuccess");
-            }
-
-            @Override
-            public void adQualitySdkInitFailed(ISAdQualityInitError error, String message) {
-                Log.d("AdQualityInitListener", "adQualitySdkInitFailed " + error + " message: " + message);
-            }
-        });
-        builder.setTestMode(true);
-        builder.setLogLevel(ISAdQualityLogLevel.VERBOSE);
 
         IronSource.setAdaptersDebug(true);
 
